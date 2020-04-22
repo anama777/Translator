@@ -1,0 +1,6 @@
+module Pods_SampleTranslator {
+  umbrella header "Pods-SampleTranslator-umbrella.h"
+
+  export *
+  module * { export * }
+}
