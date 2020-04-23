@@ -31,7 +31,7 @@ public class TranslatorViewModel : ObservableObject, Identifiable {
     }
     
     func translate(input: String) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             if input.isValidWord() {
                 if let lang = self?.detectLang(input),
                     let translationRequest = self?.api.transLate(word: input,
@@ -51,19 +51,25 @@ public class TranslatorViewModel : ObservableObject, Identifiable {
                             let tipsList = try! decoder.decode(TipsList.self, withJSONObject: tipsJson)
                             let translationsList = try! decoder.decode(TranslationsList.self, withJSONObject: translationJson)
                             
-                            self?.tips = tipsList.toTipData()
-                            self?.translations = translationsList.toTranslationData()
+                            DispatchQueue.main.async {
+                                self?.tips = tipsList.toTipData()
+                                self?.translations = translationsList.toTranslationData()
+                            }
                         }
                         },
                         onError: { error in
                             print(error.localizedDescription)
-                            self?.tips = []
-                            self?.translations = []
+                            DispatchQueue.main.async {
+                                self?.tips = []
+                                self?.translations = []
+                            }
                     }).disposed(by: self!.bag)
                 }
             } else {
-                self?.tips = []
-                self?.translations = []
+                DispatchQueue.main.async {
+                    self?.tips = []
+                    self?.translations = []
+                }
             }
         }
     }
